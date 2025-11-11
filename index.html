@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cross Method Factoring</title>
+    <!-- Load Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Use the Inter font */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom transition for smooth animations */
+        .smooth-transition {
+            transition: all 0.5s ease-in-out;
+        }
+        /* Style for the factor elements */
+        .factor-box {
+            @apply w-24 h-24 flex items-center justify-center text-2xl font-bold bg-white shadow-lg rounded-lg border-2;
+        }
+        /* Style for the result boxes */
+        .result-box {
+            @apply w-24 h-16 flex items-center justify-center text-xl font-bold bg-gray-100 shadow-md rounded-lg;
+        }
+        /* Style for the final sum box */
+        .sum-box {
+            @apply w-24 h-16 flex items-center justify-center text-xl font-bold bg-green-100 text-green-800 border-2 border-green-500 shadow-lg rounded-lg;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-4xl mx-auto p-6 md:p-8 bg-white rounded-2xl shadow-2xl border border-gray-200">
+        
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-4">
+            Factoring with the Cross Method
+        </h1>
+        <p class="text-center text-gray-600 mb-2 text-lg">
+            Let's factor the quadratic:
+        </p>
+        <h2 class="text-center text-4xl font-mono font-bold text-indigo-600 mb-8">
+            2x² + 7x + 3
+        </h2>
+
+        <!-- Animation Area -->
+        <div class="relative min-h-[350px] md:min-h-[250px] flex flex-col items-center justify-center">
+
+            <!-- 1. Factor Setup -->
+            <div id="step-1" class="smooth-transition opacity-0 absolute w-full">
+                <div class="flex justify-center gap-16 md:gap-32">
+                    <!-- Column for 'a' factors (2x^2) -->
+                    <div class="flex flex-col gap-8">
+                        <div class="factor-box border-blue-500">2x</div>
+                        <div class="factor-box border-blue-500">x</div>
+                    </div>
+                    <!-- Column for 'c' factors (3) -->
+                    <div class="flex flex-col gap-8">
+                        <div class="factor-box border-purple-500">1</div>
+                        <div class="factor-box border-purple-500">3</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SVG Lines for the "Cross" -->
+            <svg id="cross-lines" class="absolute w-full h-full top-0 left-0 overflow-visible z-0 smooth-transition opacity-0">
+                <!-- Line from 2x to 3 -->
+                <line id="line-1" x1="37%" y1="56" x2="63%" y2="200" stroke="#fb7185" stroke-width="4" class="smooth-transition" stroke-dasharray="300" stroke-dashoffset="300" />
+                <!-- Line from x to 1 -->
+                <line id="line-2" x1="37%" y1="200" x2="63%" y2="56" stroke="#60a5fa" stroke-width="4" class="smooth-transition" stroke-dasharray="300" stroke-dashoffset="300" />
+            </svg>
+
+            <!-- 2. Cross Products -->
+            <div id="step-2" class="smooth-transition opacity-0 absolute w-full">
+                <div class="flex justify-evenly items-center">
+                    <span class="text-2xl font-bold text-blue-500">(x)(1) =</span>
+                    <div class="result-box">x</div>
+                    <div class="result-box">6x</div>
+                    <span class="text-2xl font-bold text-rose-500"> = (2x)(3)</span>
+                </div>
+            </div>
+
+            <!-- 3. Sum of Products -->
+            <div id="step-3" class="smooth-transition opacity-0 absolute w-full flex flex-col items-center gap-4">
+                <p class="text-2xl font-bold text-gray-700">x + 6x =</p>
+                <div id="sum-box" class="sum-box scale-0 smooth-transition">7x</div>
+            </div>
+
+            <!-- 4. Final Answer -->
+            <div id="step-4" class="smooth-transition opacity-0 absolute w-full flex flex-col items-center gap-4">
+                <p class="text-2xl font-bold text-gray-700 mb-2">The factors are:</p>
+                <div class="text-3xl font-mono font-bold text-indigo-600 bg-indigo-50 p-4 rounded-lg shadow-inner">
+                    (2x + 1)(x + 3)
+                </div>
+            </div>
+        </div>
+
+        <!-- Explanation Text -->
+        <p id="explanation" class="text-center text-lg text-gray-700 min-h-[3em] mt-8 mb-6 px-4">
+            Let's begin. Click "Next" to start.
+        </p>
+
+        <!-- Control Button -->
+        <div class="text-center">
+            <button id="next-btn" class="px-8 py-3 bg-indigo-600 text-white text-lg font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-75 transition-all duration-200">
+                Next Step
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // Get all the elements we need to animate
+        const step1 = document.getElementById('step-1');
+        const step2 = document.getElementById('step-2');
+        const step3 = document.getElementById('step-3');
+        const step4 = document.getElementById('step-4');
+        const crossLines = document.getElementById('cross-lines');
+        const line1 = document.getElementById('line-1');
+        const line2 = document.getElementById('line-2');
+        const sumBox = document.getElementById('sum-box');
+        const explanation = document.getElementById('explanation');
+        const nextBtn = document.getElementById('next-btn');
+
+        let currentStep = 0;
+
+        // This function controls the animation step-by-step
+        function runAnimation() {
+            currentStep++;
+
+            switch (currentStep) {
+                case 1:
+                    // Show factors of 'a' (2x^2) and 'c' (3)
+                    explanation.textContent = "First, we list possible factors for the 'a' term (2x²) on the left, and the 'c' term (3) on the right.";
+                    step1.style.opacity = '1';
+                    break;
+                
+                case 2:
+                    // Draw the cross lines
+                    explanation.textContent = "Now, we 'cross-multiply' the terms diagonally.";
+                    crossLines.style.opacity = '1';
+                    line1.style.strokeDashoffset = '0'; // Animate line drawing
+                    line2.style.strokeDashoffset = '0'; // Animate line drawing
+                    break;
+
+                case 3:
+                    // Hide factors and show the products
+                    explanation.textContent = "Let's look at the products of this cross-multiplication.";
+                    step1.style.opacity = '0';
+                    crossLines.style.opacity = '0';
+                    step2.style.opacity = '1';
+                    break;
+
+                case 4:
+                    // Hide products and show the sum
+                    explanation.textContent = "We add the two products together.";
+                    step2.style.opacity = '0';
+                    step3.style.opacity = '1';
+                    sumBox.style.transform = 'scale(1.2)'; // Pop effect
+                    break;
+
+                case 5:
+                    // Check the sum
+                    explanation.textContent = "This sum (7x) matches our middle 'b' term (7x). This means we found the correct factors!";
+                    sumBox.style.transform = 'scale(1)'; // Settle effect
+                    break;
+                
+                case 6:
+                    // Show the final factors
+                    explanation.textContent = "To get the final answer, we read the factors horizontally from our setup in Step 1.";
+                    step3.style.opacity = '0';
+                    step4.style.opacity = '1';
+                    nextBtn.textContent = 'Reset Animation';
+                    break;
+
+                default:
+                    // Reset
+                    currentStep = 0;
+                    explanation.textContent = "Let's begin. Click 'Next' to start.";
+                    nextBtn.textContent = 'Next Step';
+                    step1.style.opacity = '0';
+                    step2.style.opacity = '0';
+                    step3.style.opacity = '0';
+                    step4.style.opacity = '0';
+                    crossLines.style.opacity = '0';
+                    line1.style.strokeDashoffset = '300';
+                    line2.style.strokeDashoffset = '300';
+                    sumBox.style.transform = 'scale(0)';
+                    break;
+            }
+        }
+
+        // Start the animation on button click
+        nextBtn.addEventListener('click', runAnimation);
+
+    </script>
+</body>
+</html>
